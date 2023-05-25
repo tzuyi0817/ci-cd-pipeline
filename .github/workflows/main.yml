@@ -11,12 +11,23 @@ jobs:
     steps:
       - name: Clone Repository
         uses: actions/checkout@v3
+
+      - name: Install Node.js
+        uses: actions/setup-node@v3
         with:
           node-version: 18
+    
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+          run_install: false
+
       - name: Install Dependencies
         run: |
           echo "Running Installing Dependencies..."
           pnpm install
+
       - name: Run Linting
         run: |
           echo "Running Linting tests..."
