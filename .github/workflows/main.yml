@@ -36,24 +36,16 @@ jobs:
           pnpm lint
         env:
           CI: true
-  securityCheck:
-    name: Security Check
+  UnitTest:
+    name: Unit Test
     runs-on: ubuntu-latest
     steps:
       - name: Check for Security
-        run: |
-          echo "Running Security Checks... 0"
-          sleep 5s;
-          echo "Running Security Checks... 1"
-          sleep 5s;
-          echo "Running Security Checks... 2"
-          sleep 5s;
-          echo "Running Security Checks... 3"
-          sleep 5s;
+        run: pnpm test
   deploy:
     name: Deployment
     runs-on: ubuntu-latest
-    needs: [lintTest, securityCheck]
+    needs: [lintTest, UnitTest]
     steps:
       - name: Clone Repository
         uses: actions/checkout@v3
