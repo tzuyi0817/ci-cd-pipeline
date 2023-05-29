@@ -11,9 +11,7 @@ jobs:
     name: Lint
     runs-on: ubuntu-latest
     steps:
-      - name: Clone Repository
-        uses: actions/checkout@v3
-
+      - uses: actions/checkout@v3
       - name: Install Node.js
         uses: actions/setup-node@v3
         with:
@@ -24,6 +22,21 @@ jobs:
         with:
           version: 7.14.2
           run_install: false
+
+      - name: Get pnpm store directory
+        id: pnpm-cache
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v3
+        name: Setup pnpm cache
+        with:
+          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
 
       - name: Install Dependencies
         run: |
@@ -36,20 +49,37 @@ jobs:
           pnpm lint
         env:
           CI: true
+  securityCheck:
+    name: Security Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check for Security
+        run: |
+          echo "Running Security Checks... 0"
+          sleep 5s;
+          echo "Running Security Checks... 1"
+          sleep 5s;
+          echo "Running Security Checks... 2"
+          sleep 5s;
+          echo "Running Security Checks... 3"
   UnitTest:
     name: Unit Test
     runs-on: ubuntu-latest
     steps:
-      - name: Check for Security
+      - uses: actions/checkout@v3
+      - uses: actions/cache@v3
+        id: pnpm-cache
+        with:
+          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+      - name: Run Test
         run: pnpm test
   deploy:
     name: Deployment
     runs-on: ubuntu-latest
-    needs: [lintTest, UnitTest]
+    needs: [lintTest, securityCheck, UnitTest]
     steps:
-      - name: Clone Repository
-        uses: actions/checkout@v3
-
+      - uses: actions/checkout@v3
       - name: Install Node.js
         uses: actions/setup-node@v3
         with:
