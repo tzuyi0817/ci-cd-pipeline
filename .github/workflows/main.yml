@@ -55,6 +55,25 @@ jobs:
     runs-on: ubuntu-latest
     needs: [lintTest, securityCheck]
     steps:
-      - name: Deploy
+      - name: Clone Repository
+        uses: actions/checkout@v3
+
+      - name: Install Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+    
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 7.14.2
+
+      - name: Install Dependencies
         run: |
-          echo "Deployment in Progress"
+          echo "Running Installing Dependencies..."
+          pnpm install
+
+      - name: Run build
+        run: |
+          echo "Running build..."
+          pnpm build
