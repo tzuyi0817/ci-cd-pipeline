@@ -7,11 +7,10 @@ on:
     branches: [ main ]
 
 jobs:
-  lintTest:
-    name: Lint
+  installDependencies:
+    name: Install Dependencies
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
       - name: Install Node.js
         uses: actions/setup-node@v3
         with:
@@ -36,25 +35,21 @@ jobs:
           key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: |
             ${{ runner.os }}-pnpm-store-
-      
-      - uses: actions/cache@v2
-        with:
-          path: |
-            ./node_modules
-          key: ${{ runner.os }}-nextjs-${{ hashFiles('**/pnpm-lock.yaml') }}-${{ hashFiles('**.[jt]s', '**.[jt]sx') }}
-          restore-keys: |
-            ${{ runner.os }}-nextjs-${{ hashFiles('**/pnpm-lock.yaml') }}-
 
       - name: Install Dependencies
         run: pnpm install
-
+  lintTest:
+    name: Lint
+    runs-on: ubuntu-latest
+    needs: [installDependencies]
+    steps:
+      - uses: actions/checkout@v3
       - name: Run Linting
         run: pnpm lint
-        env:
-          CI: true
   securityCheck:
     name: Security Check
     runs-on: ubuntu-latest
+    needs: [installDependencies]
     steps:
       - name: Check for Security
         run: |
@@ -65,9 +60,10 @@ jobs:
           echo "Running Security Checks... 2"
           sleep 5s;
           echo "Running Security Checks... 3"
-  UnitTest:
+  unitTest:
     name: Unit Test
     runs-on: ubuntu-latest
+    needs: [installDependencies]
     steps:
       - uses: actions/checkout@v3
       - name: Run test
@@ -75,21 +71,8 @@ jobs:
   deploy:
     name: Deployment
     runs-on: ubuntu-latest
-    needs: [lintTest, securityCheck, UnitTest]
+    needs: [lintTest, securityCheck, unitTest]
     steps:
       - uses: actions/checkout@v3
-      - name: Install Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 18
-    
-      - name: Install pnpm
-        uses: pnpm/action-setup@v2
-        with:
-          version: 7.14.2
-
-      - name: Install Dependencies
-        run: pnpm install
-
       - name: Run build
         run: pnpm build
