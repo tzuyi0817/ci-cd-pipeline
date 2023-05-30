@@ -11,6 +11,7 @@ jobs:
     name: Install Dependencies
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v3
       - name: Install Node.js
         uses: actions/setup-node@v3
         with:
@@ -38,6 +39,7 @@ jobs:
 
       - name: Install Dependencies
         run: pnpm install
+
   lintTest:
     name: Lint
     runs-on: ubuntu-latest
@@ -46,6 +48,7 @@ jobs:
       - uses: actions/checkout@v3
       - name: Run Linting
         run: pnpm lint
+
   securityCheck:
     name: Security Check
     runs-on: ubuntu-latest
@@ -60,6 +63,7 @@ jobs:
           echo "Running Security Checks... 2"
           sleep 5s;
           echo "Running Security Checks... 3"
+
   unitTest:
     name: Unit Test
     runs-on: ubuntu-latest
@@ -68,6 +72,7 @@ jobs:
       - uses: actions/checkout@v3
       - name: Run test
         run: pnpm test
+
   deploy:
     name: Deployment
     runs-on: ubuntu-latest
