@@ -36,16 +36,20 @@ jobs:
           key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: |
             ${{ runner.os }}-pnpm-store-
+      
+      - uses: actions/cache@v2
+        with:
+          path: |
+            ./node_modules
+          key: ${{ runner.os }}-nextjs-${{ hashFiles('**/pnpm-lock.yaml') }}-${{ hashFiles('**.[jt]s', '**.[jt]sx') }}
+          restore-keys: |
+            ${{ runner.os }}-nextjs-${{ hashFiles('**/pnpm-lock.yaml') }}-
 
       - name: Install Dependencies
-        run: |
-          echo "Running Installing Dependencies..."
-          pnpm install
+        run: pnpm install
 
       - name: Run Linting
-        run: |
-          echo "Running Linting tests..."
-          pnpm lint
+        run: pnpm lint
         env:
           CI: true
   securityCheck:
@@ -66,12 +70,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/cache@v3
-        id: pnpm-cache
-        with:
-          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
-          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
-      - name: Run Test
+      - name: Run test
         run: pnpm test
   deploy:
     name: Deployment
@@ -90,11 +89,7 @@ jobs:
           version: 7.14.2
 
       - name: Install Dependencies
-        run: |
-          echo "Running Installing Dependencies..."
-          pnpm install
+        run: pnpm install
 
       - name: Run build
-        run: |
-          echo "Running build..."
-          pnpm build
+        run: pnpm build
