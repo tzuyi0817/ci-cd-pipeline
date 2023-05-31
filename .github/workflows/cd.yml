@@ -1,0 +1,100 @@
+name: CD-Pipeline
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  CD:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 7.14.2
+          run_install: false
+
+      - name: Get pnpm store directory
+        id: pnpm-cache
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v3
+        with:
+          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Setup node_modules cache
+        id: dependencies-cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            **/node_modules
+          key: ${{ runner.os }}-node-modules-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-node-modules-
+
+      - name: Install Dependencies
+        if: steps.dependencies-cache.outputs.cache-hit != 'true'
+        run: pnpm install
+      # 從 package.json 裡取得 version
+      # 在 CD Workflow 中會給每個生成的 bundle 加上 version 標籤
+      - name: Read Version
+        id: version
+        uses: ashley-taylor/read-json-property-action@v1.0
+        with:
+          path: ./package.json
+          property: version
+
+      - name: Building
+        run: |
+          pnpm build
+          zip -r assets ./dist/**
+      # Create a release，tag_name 是 v 前綴加上 package.json 的 version
+      # - name: Create GitHub Release
+      #   # 此步驟中，版本發布後會返回對應的 url，以供下面上傳 bundle 的步驟中讀取使用
+      #   id: create_release
+      #   uses: actions/create-release@v1
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.PROJECT_ACCESS_TOKEN }}
+      #   with:
+      #     tag_name: v${{steps.version.outputs.value}}
+      #     release_name: v${{steps.version.outputs.value}}
+      #     draft: false
+      #     prerelease: false
+      # 把 assets.zip 上傳到倉庫對應的發布版本 Release 上
+      # - name: Update Release Asset
+      #   id: upload-release-asset
+      #   uses: actions/upload-release-asset@v1
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.PROJECT_ACCESS_TOKEN }}
+      #   with:
+      #     upload_url: ${{ steps.create_release.outputs.upload_url }}
+      #     asset_path: ./assets.zip
+      #     asset_name: assets.zip
+      #     asset_content_type: application/zip
+
+      # - name: Upload to Deploy Server
+      #   uses: easingthemes/ssh-deploy@v2.0.7
+      #   env:
+      #     SSH_PRIVATE_KEY: ${{ secrets.DEPLOY_TOKEN }}
+      #     # 指定當前目錄中要上傳的內容
+      #     SOURCE: "dist/"
+      #     # 指定上傳到部署機器的哪個目錄下
+      #     TARGET: "/data/www"
+      #     # 上傳前指令，此處用於清空 TARGET 下的文件
+      #     ARGS: "-avzr --delete"
+      #     # REMOTE_HOST 為機器的公網 IP
+      #     REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
+      #     # EMOTE_USER為登錄機器時用到的帳號
+      #     REMOTE_USER: ${{secrets.REMOTE_USER}}
