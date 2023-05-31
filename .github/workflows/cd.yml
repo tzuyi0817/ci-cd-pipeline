@@ -59,7 +59,6 @@ jobs:
       - name: Building
         run: |
           pnpm build
-          zip -r assets ./dist/**
       # Create a release，tag_name 是 v 前綴加上 package.json 的 version
       # - name: Create GitHub Release
       #   # 此步驟中，版本發布後會返回對應的 url，以供下面上傳 bundle 的步驟中讀取使用
