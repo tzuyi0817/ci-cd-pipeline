@@ -1,7 +1,8 @@
 'use client';
 
-import Image from 'next/image';
 import { useState } from 'react';
+import Link from 'next/link';
+import Image from 'next/image';
 import styles from '@/styles/Home.module.css';
 
 export default function Home() {
@@ -27,6 +28,7 @@ export default function Home() {
 
   return (
     <div className={styles.container}>
+      <Link href="/list">virtualized list</Link>
       <div className={styles.result} data-testid="result">
         {result}
       </div>
