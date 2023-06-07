@@ -12,6 +12,7 @@ interface Item {
 
 function List() {
   const [items, setItems] = useState<Item[]>([]);
+  const [windowHeight, setWindowHeight] = useState(0);
 
   useEffect(() => {
     const list = Array(ITEM_COUNT)
@@ -21,10 +22,14 @@ function List() {
     setItems(list);
   }, []);
 
+  useEffect(() => {
+    setWindowHeight(window.innerHeight);
+  }, []);
+
   return (
     <VirtualizedList
       itemHeight={40}
-      windowHeight={window.innerHeight}
+      windowHeight={windowHeight}
       itemCount={items.length}
       renderItem={({ index, style }) => {
         const element = items[index];
