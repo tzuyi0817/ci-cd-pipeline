@@ -56,7 +56,7 @@ jobs:
 
       - name: Run lighthouse-ci
         run: |
-          pnpm install -g @lhci/cli@0.8.x
+          pnpm install -g @lhci/cli@0.12.x
           pnpm build
           lhci collect
           lhci autorun --upload.target=temporary-public-storage || echo "LHCI failed!"
