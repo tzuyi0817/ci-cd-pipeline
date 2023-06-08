@@ -23,6 +23,10 @@
           { "aggregationMethod": "optimistic", "minScore": 0.95 }
         ]
       }
-    }
+    },
+    "upload": {
+      "target": "temporary-public-storage"
+    },
+    "server": {}
   }
 }

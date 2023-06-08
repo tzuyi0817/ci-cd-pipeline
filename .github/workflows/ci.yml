@@ -59,7 +59,7 @@ jobs:
           pnpm install -g @lhci/cli@0.12.x
           pnpm build
           lhci collect
-          lhci autorun --upload.target=temporary-public-storage || echo "LHCI failed!"
+          lhci upload
         env:
           LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
   securityCheck:
