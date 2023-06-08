@@ -32,14 +32,18 @@ export default function Home() {
       <div className={styles.result} data-testid="result">
         {result}
       </div>
+      <label htmlFor="num1">num1</label>
       <input
+        id="num1"
         type="number"
         className={styles.input}
         data-testid="num1"
         value={num1}
         onChange={(e) => setNum1(e.target.value)}
       />
+      <label htmlFor="num2">num2</label>
       <input
+        id="num2"
         type="number"
         className={styles.input}
         data-testid="num2"
